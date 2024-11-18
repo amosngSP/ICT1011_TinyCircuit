@@ -35,6 +35,7 @@ void maingame(){
   }
   else if(game_status==SEEKING)
   {
+    seeking();
     //when the status is SEEKING
   }
   else if (game_status==END)
@@ -46,10 +47,10 @@ void maingame(){
     //check if data is available
     JsonDocument doc;
     //testing
-    //char* json_data = "{\"game_action\":\"start\",\"hiding_time\":10,\"seeker_time\":10,\"hiding_players\":5,\"player_type\":\"hider\"}";
+    char* json_data = "{\"game_action\":\"start\",\"hiding_time\":10,\"seeker_time\":10,\"hiding_players\":5,\"player_type\":\"hider\"}";
 
     //actual data
-    char* json_data = rcvData();
+    //char* json_data = rcvData();
     //SerialMonitorInterface.println(json_data);
     //deserialize the JSON document
     DeserializationError error = deserializeJson(doc, json_data);
@@ -128,11 +129,24 @@ void pregame(){
 }
   
 void hiding(){
-  header();
-  displayText("Are you hiding?",40);
+  for (int i = hiding_time; i !=-1; i--){
+    header();
+    displayText("Are you hiding?",40);
+    char str[50];
+    int min = (i >= 60) ? floor(i/60) : 0; //if secs more than or equal to 60, to do math and grab the minutes left
+  int secs = (i >= 60) ? i-(floor(i/60)*60) : i; //if secs more than or equal to 60, to do math and grab the minutes left.
+    sprintf(str,"Time Left: %02d:%02d",min,secs);
+    displayText(str,50);
+    delay(1000);
+  }
+  game_status=SEEKING;
 }
 
-
+void seeking(){
+  header();
+  displayText("Hide!!",40);
+  delay(1000);
+}
 
 /*
 Displays the home screen. Shows the device name and whether a device has been connected or not connected.

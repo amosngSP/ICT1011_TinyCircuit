@@ -1,4 +1,3 @@
-
 #if BLE_DEBUG
 #include <stdio.h>
 char sprintbuff[100];
@@ -14,6 +13,13 @@ char randomString[3]; // Two characters + null terminator
 
 #define  ADV_INTERVAL_MIN_MS  50
 #define  ADV_INTERVAL_MAX_MS  100
+
+uint8_t ble_connection_state = false;
+volatile uint8_t set_connectable = 1;
+uint16_t connection_handle = 0;
+char randomString[3]; // Two characters + null terminator
+
+void HCI_Event_CB(void *pckt);
 
 //Set the bluetooth address here
 

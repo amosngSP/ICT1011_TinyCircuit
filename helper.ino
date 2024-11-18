@@ -45,58 +45,55 @@ void displayText(char* text,int height, int color)
   display.print(text);
 }
 
-void homeScreen(){
-  display.clearScreen();
-  displayText("HIDE",0);
-  displayText("AND",10);
-  displayText("SEEK",20);
-  displayText("=========",30);
-  if(connected)
-  {
-    displayText("Connected",40,green);
-  }
-  else
-  {
-    displayText("Not connected",40,red);
-    //displayText("Discoverable as",50);
-    char devicename[15]="TinyCircuit-";
-    strcat(devicename,randomString);
-    displayText(devicename,50);
-  }
-  delay(1000);
-}
 
-void countdownTimer(int s){
+void countdownTimer(int s,int height){
   int min = (s >= 60) ? floor(s/60) : 0; //if secs more than or equal to 60, to do math and grab the minutes left
   int secs = (s >= 60) ? s-(floor(s/60)*60) : s; //if secs more than or equal to 60, to do math and grab the minutes left.
   char timer[10];
   sprintf(timer,"%02d:%02d", min,secs);
   display.clearScreen();
-  displayText("Time Left",10);
-  displayText(timer,20);
+  displayText("Time Left",height);
+  displayText(timer,height+10);
 }
-
-char * rcv_data(){
-  if(ble_rx_buffer_len){
-    //receive data
-    char* data = ((char*)ble_rx_buffer);
-    //flush buffer
-    ble_rx_buffer_len = 0;
-    //return data
-    return data;
-  } else {
-    return "";
+char total_data[1024];
+char* rcvData()
+{
+  strcpy(total_data,"");
+  int receiving = 0;
+  
+  if (ble_rx_buffer_len){
+    char* received = (char*)ble_rx_buffer;
+    ble_rx_buffer_len = 0; //reset buffer
+    if(strcmp(received,"START")==0)
+    {
+      PRINTF("START signal received, waiting for data.\n");
+      //received start signal, begin while loop to keep receiving buffer.
+      while (1)
+      {
+        //a delay to prevent this code running all the time
+        aci_loop();
+        delay(1000);
+        
+        if (ble_rx_buffer_len){
+          received = (char*)ble_rx_buffer;
+          //data received
+          if(strcmp(received,"END")==0){
+            PRINTF("END SIGNAL RECEIVED.\n");
+            PRINTF("FULL DATA:");
+            PRINTF(total_data);
+            PRINTF("\n");
+            return total_data;
+          }
+          else {
+            PRINTF("RECEIVED:");
+            PRINTF(received);
+            PRINTF("\n");
+            strcat(total_data,received);
+          }
+        }
+        ble_rx_buffer_len = 0; //reset buffer
+      }
+    }
   }
-}
 
-status gameStatus(const char* s){
-  if(s=="start")
-  {
-    return (status)START;
-  } 
-  else if (s=="end")
-  {
-    return (status)END;
-  }
-  return (status)NONE;
 }

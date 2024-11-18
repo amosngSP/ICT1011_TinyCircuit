@@ -1,3 +1,4 @@
+
 #if BLE_DEBUG
 #include <stdio.h>
 char sprintbuff[100];
@@ -10,12 +11,43 @@ char sprintbuff[100];
 volatile uint8_t set_connectable = 1;
 uint16_t connection_handle = 0;
 
+char randomString[3]; // Two characters + null terminator
 
 #define  ADV_INTERVAL_MIN_MS  50
 #define  ADV_INTERVAL_MAX_MS  100
 
+//Set the bluetooth address here
 
+//Device Name (look around line 173, under setConnectable function to set)
+//NOT USED
+//const char *name = "TinyCircuit";
+//char* deviceBTName = "TinyCircuitt";
 int connected = FALSE;
+
+//suffix for TinyCircuit identification
+void generateRandomAlphanumeric(char* result) {
+    const char alphanum[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    int length = sizeof(alphanum) - 1; // Length of the alphanumeric characters array
+
+    // Seed the random number generator
+    //srand(time(NULL));
+
+    // Generate two random characters
+    result[0] = alphanum[rand() % length];
+    result[1] = alphanum[rand() % length];
+    result[2] = '\0'; // Null-terminate the string
+}
+
+//random bluetooth address
+void generate_random_address(uint8_t* random_addr) {
+    // Generate a static random address (6 bytes)
+    for (int i = 0; i < 6; i++) {
+        random_addr[i] = rand() & 0xFF; // Random 8-bit value
+    }
+    // Ensure it's a static random address by setting the two most significant bits
+    random_addr[5] |= 0xC0; // Set top two bits to '11'
+    random_addr[5] &= 0xCF; // Clear two bits for static random type
+}
 
 
 int BLEsetup() {
@@ -27,13 +59,7 @@ int BLEsetup() {
   /* Reset BlueNRG/BlueNRG-MS SPI interface */
   BlueNRG_RST();
 
-  uint8_t bdaddr[] = {0x12, 0x34, 0x00, 0xE1, 0x80, 0x02};
 
-  ret = aci_hal_write_config_data(CONFIG_DATA_PUBADDR_OFFSET, CONFIG_DATA_PUBADDR_LEN, bdaddr);
-
-  if (ret) {
-    PRINTF("Setting BD_ADDR failed.\n");
-  }
 
   ret = aci_gatt_init();
 
@@ -48,15 +74,14 @@ int BLEsetup() {
     PRINTF("GAP_Init failed.\n");
   }
 
-  const char *name = "BlueNRG";
+  //const char *name = "TinyBruh";
+  // ret = aci_gatt_update_char_value(service_handle, dev_name_char_handle, 0, strlen(name), (uint8_t *)name);
 
-  ret = aci_gatt_update_char_value(service_handle, dev_name_char_handle, 0, strlen(name), (uint8_t *)name);
-
-  if (ret) {
-    PRINTF("aci_gatt_update_char_value failed.\n");
-  } else {
-    PRINTF("BLE Stack Initialized.\n");
-  }
+  // if (ret) {
+  //   PRINTF("Can't set bluetooth name. Aci_gatt_update_char_value failed.\n");
+  // } else {
+  //   PRINTF("BLE Stack Initialized.\n");
+  // }
 
   ret = Add_UART_Service();
 
@@ -166,7 +191,13 @@ void setConnectable(void)
 {
   tBleStatus ret;
 
-  const char local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME, 'B', 'l', 'u', 'e', 'N', 'R', 'G'};
+    generateRandomAlphanumeric(randomString);
+  const char local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME, 'T', 'i', 'n', 'y', 'C', 'i', 'r','c','u','i','t','-',randomString[0],randomString[1]};
+
+    //random address
+  uint8_t bdaddr[6];
+  generate_random_address(bdaddr);
+hci_le_set_random_address(bdaddr);
 
   hci_le_set_scan_resp_data(0, NULL);
   PRINTF("General Discoverable Mode.\n");

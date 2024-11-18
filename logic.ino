@@ -46,7 +46,7 @@ void maingame(){
     //check if data is available
     JsonDocument doc;
     //testing
-    char* json_data = "{\"game_action\":\"start\",\"hiding_time\":10,\"seeker_time\":10,\"hiding_players\":5,\"player_type\":\"hider\"}";
+    //char* json_data = "{\"game_action\":\"start\",\"hiding_time\":10,\"seeker_time\":10,\"hiding_players\":5,\"player_type\":\"hider\"}";
 
     //actual data
     char* json_data = rcvData();

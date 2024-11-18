@@ -7,7 +7,6 @@ char sprintbuff[100];
 #define PRINTF(...)
 #endif
 
-
 volatile uint8_t set_connectable = 1;
 uint16_t connection_handle = 0;
 
@@ -38,17 +37,19 @@ void generateRandomAlphanumeric(char* result) {
     result[2] = '\0'; // Null-terminate the string
 }
 
-//random bluetooth address
-void generate_random_address(uint8_t* random_addr) {
-    // Generate a static random address (6 bytes)
-    for (int i = 0; i < 6; i++) {
-        random_addr[i] = rand() & 0xFF; // Random 8-bit value
-    }
-    // Ensure it's a static random address by setting the two most significant bits
-    random_addr[5] |= 0xC0; // Set top two bits to '11'
-    random_addr[5] &= 0xCF; // Clear two bits for static random type
-}
+// generates a random address
+void generate_random_address(uint8_t* mac_addr) {
+  // Generate a static random address (6 bytes)
 
+  // "ICT" but reversed
+  mac_addr[0] = 0x54;
+  mac_addr[1] = 0x43;
+  mac_addr[2] = 0x49;
+
+  for (int i = 3; i < 6; i++) {
+    mac_addr[i] = rand() & 0xFF; // Random 8-bit value
+  }
+}
 
 int BLEsetup() {
   int ret;
@@ -191,13 +192,14 @@ void setConnectable(void)
 {
   tBleStatus ret;
 
-    generateRandomAlphanumeric(randomString);
-  const char local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME, 'T', 'i', 'n', 'y', 'C', 'i', 'r','c','u','i','t','-',randomString[0],randomString[1]};
+  generateRandomAlphanumeric(randomString);
 
-    //random address
+  const char local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME, 'T', 'i', 'n', 'y', 'C', 'i', 'r', 'c', 'u', 'i', 't', '-', randomString[0], randomString[1]};
+
+  // random address
   uint8_t bdaddr[6];
   generate_random_address(bdaddr);
-hci_le_set_random_address(bdaddr);
+  hci_le_set_random_address(bdaddr);
 
   hci_le_set_scan_resp_data(0, NULL);
   PRINTF("General Discoverable Mode.\n");

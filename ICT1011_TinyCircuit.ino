@@ -1,8 +1,7 @@
-#include <SPI.h>
-#include <STBLE.h>
 #include <ArduinoJson.h>
 #include <Wire.h>
 #include <SPI.h>
+#include <STBLE.h>
 #include <TinyScreen.h>
 
 //Debug output adds extra flash and memory requirements!
@@ -16,9 +15,9 @@
 
 
 enum status{
+  NONE,
   START,
-  END,
-  INTERRUPT
+  END
 };
 
 
@@ -36,6 +35,7 @@ void setup() {
   SerialMonitorInterface.begin(9600);
   while (!SerialMonitorInterface); //This line will block until a serial monitor is opened with TinyScreen+!
   // put your setup code here, to run once:
+  randomSeed(analogRead(0));
   BLEsetup();
   displaySetup();
   delay(1000);
@@ -64,5 +64,5 @@ void loop() {
   }
   // countdownTimer(secs);
   // secs--;
-  // delay(1000);
+   delay(1000);
 }

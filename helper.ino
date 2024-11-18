@@ -47,17 +47,21 @@ void displayText(char* text,int height, int color)
 
 void homeScreen(){
   display.clearScreen();
-  displayText("HIDE",10);
-  displayText("AND",20);
-  displayText("SEEK",30);
-  displayText("=========",40);
+  displayText("HIDE",0);
+  displayText("AND",10);
+  displayText("SEEK",20);
+  displayText("=========",30);
   if(connected)
   {
-    displayText("Connected",50,green);
+    displayText("Connected",40,green);
   }
   else
   {
-    displayText("Not connected",50,red);
+    displayText("Not connected",40,red);
+    //displayText("Discoverable as",50);
+    char devicename[15]="TinyCircuit-";
+    strcat(devicename,randomString);
+    displayText(devicename,50);
   }
   delay(1000);
 }
@@ -94,8 +98,5 @@ status gameStatus(const char* s){
   {
     return (status)END;
   }
-  else if (s=="interrupt")
-  {
-    return (status)INTERRUPT;
-  }
+  return (status)NONE;
 }

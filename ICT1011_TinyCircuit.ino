@@ -9,9 +9,12 @@
 #define BLE_DEBUG true
 #endif
 
+#ifdef BLE_DEBUG
+#define SerialMonitorInterface SerialUSB
+#endif
+
 //Serial
 
-#define SerialMonitorInterface SerialUSB
 
 
 //uint8_t ble_rx_buffer[1024];  // Define the buffer
@@ -24,3 +27,7 @@ uint8_t ble_rx_buffer_len = 0;
 
 //screen
 TinyScreen display = TinyScreen(TinyScreenDefault);
+
+//buttons
+uint8_t buttonReleased = 1;
+

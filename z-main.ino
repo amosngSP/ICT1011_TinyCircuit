@@ -9,6 +9,8 @@ void setup() {
   randomSeed(analogRead(0));
   BLEsetup();
   displaySetup();
+  RTCSetup();
+  
   delay(1000);
 }
 
@@ -19,5 +21,5 @@ void loop() {
   maingame();
   // countdownTimer(secs);
   // secs--;
-   delay(1000);
+   delay(500);
 }

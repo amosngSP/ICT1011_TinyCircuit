@@ -4,6 +4,7 @@ enum status game_status = NONE;
 enum playerType player_type = NEITHER;
 enum powerUps power_ups = NIL;
 enum screenStatus screen_status = S_EMPTY;
+enum playerType winner = NEITHER;
 
 //buttons
 const uint8_t upRightButton = TSButtonUpperRight;
@@ -34,15 +35,30 @@ void maingame(){
     pregame();
     //when the status is PREGAME
   }
-  else if(game_status==HIDING)
+  else if(game_status==HIDING&&player_type==HIDER)
   {
-    hiding();
-    //when the status is HIDING
+    hider_hiding();
+    //when the status is HIDING, player is HIDER
   }
-  else if(game_status==SEEKING)
+  else if(game_status==HIDING&&player_type==SEEKER)
   {
-    seeking();
-    //when the status is SEEKING
+    seeker_hiding();
+    //when the status is HIDING, player is SEEKER
+  }
+  else if(game_status==SEEKING&&player_type==HIDER)
+  {
+    hider_seeking();
+    //when the status is SEEKING, player is HIDER
+  }
+  else if(game_status==SEEKING&&player_type==SEEKER)
+  {
+    seeker_seeking();
+    //when the status is SEEKING, player is SEEKER, and player is not eliminated
+  }
+  else if(game_status==SEEKING&&player_type==ELIMINATED)
+  {
+    //player eliminated
+    hider_eliminated();
   }
   else if (game_status==END)
   {
@@ -71,7 +87,9 @@ void maingame(){
       doc["error"] = "fail";
       PRINTF("Fail!\n");
       PRINTF(error.c_str());
+      PRINTF("\n");
       PRINTF(json_data);
+      PRINTF("\n");
       ble_rx_buffer_len = 0;//clear after reading
       return;
     }
@@ -99,12 +117,26 @@ void maingame(){
       //stop signal received from phone.
       game_status=END;
       //reset the rest of the game values
-      hiding_time=0;
-      seeker_time=0;
-      hiding_players=0;
-      game_status = NONE;
-      player_type = NEITHER;
-      power_ups = NIL;
+      if(doc["winner"]=="hider")
+      {
+        winner = HIDER;
+      } 
+      else 
+      {
+        winner = SEEKER;
+      }
+    }
+    else if(doc["game_action"]=="caught")
+    {
+      if(doc["hiding_players"])
+      {
+        hiding_players=doc["hiding_players"];
+      }
+      else
+      {
+        hiding_players--;
+      }
+      player_caught();
     }
   }
 
@@ -137,54 +169,150 @@ void pregame(){
   }
   //set game status to HIDING
   game_status=HIDING;
+  //get current seconds and add to the timers
+  int seconds = rtc.getEpoch();
+  hiding_time += seconds;
 }
   
-void hiding(){
-
-    if (hiding_time!=-1)
+void hider_hiding(){
+int i = hiding_time - rtc.getEpoch();
+    if (i>=0)
     {
-      int i = hiding_time;
+      
           header();
     displayText("Are you hiding?",40);
     char str[50];
-    int min = (i >= 60) ? floor(i/60) : 0; //if secs more than or equal to 60, to do math and grab the minutes left
-  int secs = (i >= 60) ? i-(floor(i/60)*60) : i; //if secs more than or equal to 60, to do math and grab the minutes left.
-    sprintf(str,"Time Left: %02d:%02d",min,secs);
-    displayText(str,50);
-    hiding_time--;
+    time_remaining(i, 50);
     }
 else {
 game_status=SEEKING;
+//get current time and add to the timers
+int seconds = rtc.getEpoch();
+  seeker_time += seconds;
 }
   
   
 }
 
-void seeking(){
-  if(seeker_time!=-1){
-    header();
-    displayText("Hide!!",40);
+void hider_seeking(){
+  int i = seeker_time - rtc.getEpoch();
+  if(i>=0&&hiding_players!=0){
+    clearDisplay();
+    displayTextTopLeft("< Eliminate Player",0);
+    players_remaining(20);
+    displayText("YOU ARE: HIDING",40);
     
-    int min = (seeker_time >= 60) ? floor(seeker_time/60) : 0;
-    int secs = (seeker_time >= 60) ? seeker_time-(floor(seeker_time/60)*60) : seeker_time;
-    char str[50];
-    sprintf(str,"Time Left: %02d:%02d",min,secs);
-    displayText(str,50);
-    seeker_time--;
+    time_remaining(i, 50);
+    
+    //eliminate hider
+    if (checkButtons()==upLeftButton)
+    {
+      player_type=ELIMINATED;
+      sendData("{\"eliminated\":1}");
+      hiding_players--;
+    }
   } else {
     //time ran down
     game_status=END;
+    if(hiding_players==0)
+    {
+      winner = SEEKER;
+    }
+    else
+    {
+      winner = HIDER;
+    }
   }
   
-  //delay(1000);
 }
+
+void seeker_hiding(){
+
+}
+
+void seeker_seeking(){
+
+}
+
+void hider_eliminated(){
+  int i = seeker_time - rtc.getEpoch();
+  if(i>=0&&hiding_players!=0){
+  clearDisplay();
+  displayText("ELIMINATED",20);
+  displayText("Take the L",30);
+  players_remaining(40);
+  time_remaining(i, 50);
+  }
+  else {
+    //time ran down
+    game_status=END;
+    if(hiding_players==0)
+    {
+      winner = SEEKER;
+    }
+    else
+    {
+      winner = HIDER;
+    }
+  }
+}
+
+void player_caught(){
+  clearDisplay();
+  #ifdef BLE_DEBUG
+  PRINTF("A player was eliminated!");
+  #endif
+  if(player_type==HIDER){
+    displayText("A PLAYER",20,red);
+    displayText("WAS CAUGHT!",30,red);
+  }
+  else{
+    displayText("A PLAYER",20,green);
+    displayText("WAS CAUGHT!",30,green);
+  }
+  players_remaining(40);
+  delay(3000);
+}
+
 void game_end(){
   header();
   displayText("GAME OVER",40);
+  if(player_type==winner||(player_type==ELIMINATED&&winner==HIDER))
+  {
+    //if player_type==winner (HIDER==HIDER or SEEKER==SEEKER) or player is eliminated, and winner is hider.
+    displayText("YOU WIN!",50,green);
+  }
+  else
+  {
+    displayText("YOU LOSE!",50,red);
+  }
   game_status=NONE;
   //5 secs delay
   delay(5000);
+  //reset the stats
+  hiding_time=0;
+  seeker_time=0;
+  hiding_players=0;
+  game_status = NONE;
+  player_type = NEITHER;
+  power_ups = NIL;
   screen_status=S_EMPTY;
+}
+
+void players_remaining(int offset)
+{
+  char s[50];
+  sprintf(s,"Players Left: %d",hiding_players);
+  displayText(s,offset);
+}
+
+void time_remaining(int i, int offset)
+{
+  int min = (i >= 60) ? floor(i/60) : 0;
+    int secs = (i >= 60) ? i-(floor(i/60)*60) : i;
+    char str[50];
+    sprintf(str,"Time Left: %02d:%02d",min,secs);
+    displayText(str,offset);
 }
 /*
 Displays the home screen. Shows the device name and whether a device has been connected or not connected.
@@ -239,6 +367,8 @@ void homeScreen(){
       case DOWNLEFT:
       PRINTF("Down Left pressed!\n");
       break;
+      default:
+      PRINTF("No button pressed!\n");
     }
     buttonReleased = 0;
     return mapping_button;
@@ -269,5 +399,5 @@ int whatButton(int button)
     return DOWNLEFT;
   }
   //something else received
-  return -1;
+  return EMPTY;
 }

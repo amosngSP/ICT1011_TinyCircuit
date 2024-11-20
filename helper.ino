@@ -28,6 +28,12 @@ void displaySetup(){
   display.setBrightness(10);
   display.setFont(thinPixel7_10ptFontInfo);
 }
+
+void RTCSetup(){
+  rtc.begin();
+  rtc.setTime(hours, minutes, seconds);
+  rtc.setDate(day, month, year);
+}
 //without colour
 void displayText(char* text,int height)
 {
@@ -44,7 +50,16 @@ void displayText(char* text,int height, int color)
   display.fontColor(color,black);
   display.print(text);
 }
-
+void displayTextTopLeft(char* text,int height)
+{
+  display.setCursor(0,height);
+  display.fontColor(white,black);
+  display.print(text);
+}
+void clearDisplay()
+{
+  display.clearScreen();
+}
 
 void countdownTimer(int s,int height){
   int min = (s >= 60) ? floor(s/60) : 0; //if secs more than or equal to 60, to do math and grab the minutes left
@@ -110,4 +125,29 @@ char* rcvData()
   #endif
 }
 
+int sendData(char* str){
+  int length = strlen(str);
+  int success = lib_aci_send_data(PIPE_UART_OVER_BTLE_UART_TX_TX, (uint8_t*)str, length);
+
+  
+  if(success)
+  {
+    #ifdef BLE_DEBUG
+    PRINTF("Data sent!\n")
+    PRINTF(str);
+    PRINTF("\n")
+    #endif
+    return 1;
+  }
+  else
+  {
+    #ifdef BLE_DEBUG
+    PRINTF("Data not sent!\n");
+    PRINTF(str);
+    PRINTF("\n")
+    #endif
+    return 0;
+  }
+  
+}
 

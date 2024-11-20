@@ -26,5 +26,9 @@ enum screenStatus{
   S_GAME,
 };
 
-
-
+enum buttonPressed{
+  UPRIGHT,
+  DOWNRIGHT,
+  UPLEFT,
+  DOWNLEFT
+};

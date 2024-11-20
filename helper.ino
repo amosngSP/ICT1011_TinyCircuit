@@ -93,6 +93,8 @@ char* rcvData()
         }
         ble_rx_buffer_len = 0; //reset buffer
       }
+    } else {
+      return received;
     }
   }
 

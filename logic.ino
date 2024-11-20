@@ -3,7 +3,13 @@
 enum status game_status = NONE;
 enum playerType player_type = NEITHER;
 enum powerUps power_ups = NIL;
-enum screenStatus screen_status = S_DISCONNECTED;
+enum screenStatus screen_status = S_EMPTY;
+
+//buttons
+const uint8_t upRightButton = TSButtonUpperRight;
+const uint8_t upLeftButton = TSButtonUpperLeft;
+const uint8_t downRightButton = TSButtonLowerRight;
+const uint8_t downLeftButton = TSButtonLowerLeft;
 
 int hiding_time = 0;
 int seeker_time = 0;
@@ -41,16 +47,17 @@ void maingame(){
   else if (game_status==END)
   {
     //when the status is END
+    game_end();
   }
 
   if(ble_rx_buffer_len){
     //check if data is available
     JsonDocument doc;
     //testing
-    char* json_data = "{\"game_action\":\"start\",\"hiding_time\":10,\"seeker_time\":10,\"hiding_players\":5,\"player_type\":\"hider\"}";
+    //char* json_data = "{\"game_action\":\"start\",\"hiding_time\":10,\"seeker_time\":10,\"hiding_players\":5,\"player_type\":\"hider\"}";
 
     //actual data
-    //char* json_data = rcvData();
+    char* json_data = rcvData();
     //SerialMonitorInterface.println(json_data);
     //deserialize the JSON document
     DeserializationError error = deserializeJson(doc, json_data);
@@ -129,45 +136,134 @@ void pregame(){
 }
   
 void hiding(){
-  for (int i = hiding_time; i !=-1; i--){
-    header();
+
+    if (hiding_time!=-1)
+    {
+      int i = hiding_time;
+          header();
     displayText("Are you hiding?",40);
     char str[50];
     int min = (i >= 60) ? floor(i/60) : 0; //if secs more than or equal to 60, to do math and grab the minutes left
   int secs = (i >= 60) ? i-(floor(i/60)*60) : i; //if secs more than or equal to 60, to do math and grab the minutes left.
     sprintf(str,"Time Left: %02d:%02d",min,secs);
     displayText(str,50);
-    delay(1000);
-  }
-  game_status=SEEKING;
+    hiding_time--;
+    }
+else {
+game_status=SEEKING;
+}
+  
+  
 }
 
 void seeking(){
-  header();
-  displayText("Hide!!",40);
-  delay(1000);
+  if(seeker_time!=-1){
+    header();
+    displayText("Hide!!",40);
+    
+    int min = (seeker_time >= 60) ? floor(seeker_time/60) : 0;
+    int secs = (seeker_time >= 60) ? seeker_time-(floor(seeker_time/60)*60) : seeker_time;
+    char str[50];
+    sprintf(str,"Time Left: %02d:%02d",min,secs);
+    displayText(str,50);
+    seeker_time--;
+  } else {
+    //time ran down
+    game_status=END;
+  }
+  
+  //delay(1000);
 }
-
+void game_end(){
+  header();
+  displayText("GAME OVER",40);
+  game_status=NONE;
+  //5 secs delay
+  delay(5000);
+  screen_status=S_EMPTY;
+}
 /*
 Displays the home screen. Shows the device name and whether a device has been connected or not connected.
 */
 void homeScreen(){
-  header();
+  
   if(connected)
   {
-    displayText("Connected",40,green);
+    if(screen_status!=S_CONNECTED)
+    {
+      header();
+      displayText("Connected",40,green);
     screen_status=S_CONNECTED;
+    }
+    
   }
   else 
   {
-    displayText("Not connected",40,red);
+    if (screen_status!=S_DISCONNECTED) 
+    {
+      header();
+      displayText("Not connected",40,red);
     //displayText("Discoverable as",50);
     char devicename[15]="TinyCircuit-";
     strcat(devicename,randomString);
     displayText(devicename,50);
     screen_status=S_DISCONNECTED;
+    }
+    
   }
-  delay(1000);
+  //delay(1000);
 }
 
+ int checkButtons(){
+   byte buttons = display.getButtons();
+   if(buttonReleased && buttons){
+    //a button was pressed
+    int button = (uint8_t) buttons;
+    PRINTF("Button was pressed!\n");
+    int mapping_button = whatButton(button);
+    switch (mapping_button)
+    {
+      case UPRIGHT:
+      PRINTF("Up Right pressed!\n");
+      break;
+      case DOWNRIGHT:
+      PRINTF("Down Right pressed!\n");
+      break;
+      case UPLEFT:
+      PRINTF("Up Left pressed!\n");
+      break;
+      case DOWNLEFT:
+      PRINTF("Down Left pressed!\n");
+      break;
+    }
+    buttonReleased = 0;
+    return mapping_button;
+   }
+   if(!buttonReleased && !(buttons & 0x0f)) {
+    //button not pressed.
+    buttonReleased = 1;
+    return 0;
+   }
+ }
 
+int whatButton(int button)
+{
+  if (button==upRightButton)
+  {
+    return UPRIGHT;
+  }
+  else if (button==upLeftButton)
+  {
+    return UPLEFT;
+  }
+  else if (button==downRightButton)
+  {
+    return DOWNRIGHT;
+  }
+  else if (button==downLeftButton)
+  {
+    return DOWNLEFT;
+  }
+  //something else received
+  return -1;
+}

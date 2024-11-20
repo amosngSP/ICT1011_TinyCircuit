@@ -12,6 +12,7 @@ const uint8_t upLeftButton = TSButtonUpperLeft;
 const uint8_t downRightButton = TSButtonLowerRight;
 const uint8_t downLeftButton = TSButtonLowerLeft;
 
+//global variables we'll be using
 int hiding_time = 0;
 int seeker_time = 0;
 int hiding_players = 0;
@@ -48,12 +49,12 @@ void maingame(){
   else if(game_status==SEEKING&&player_type==HIDER)
   {
     hider_seeking();
-    //when the status is SEEKING, player is HIDER
+    //when the status is SEEKING, player is HIDER, and player is not eliminated
   }
   else if(game_status==SEEKING&&player_type==SEEKER)
   {
     seeker_seeking();
-    //when the status is SEEKING, player is SEEKER, and player is not eliminated
+    //when the status is SEEKING, player is SEEKER
   }
   else if(game_status==SEEKING&&player_type==ELIMINATED)
   {
@@ -180,7 +181,7 @@ int i = hiding_time - rtc.getEpoch();
     {
       
           header();
-    displayText("Are you hiding?",40);
+    displayText("YOU ARE: HIDING",40);
     char str[50];
     time_remaining(i, 50);
     }
@@ -227,11 +228,49 @@ void hider_seeking(){
 }
 
 void seeker_hiding(){
-
+int i = hiding_time - rtc.getEpoch();
+    if (i>=0)
+    {
+      
+          header();
+    displayText("YOU ARE: SEEKING",40);
+    char str[50];
+    time_remaining(i, 50);
+    }
+else {
+game_status=SEEKING;
+//get current time and add to the timers
+int seconds = rtc.getEpoch();
+  seeker_time += seconds;
+}
 }
 
 void seeker_seeking(){
-
+  int i = seeker_time - rtc.getEpoch();
+  if(i>=0&&hiding_players!=0){
+    clearDisplay();
+    players_remaining(20);
+    displayText("YOU ARE: SEEKING",40);
+    
+    time_remaining(i, 50);
+    
+    //some functionality for buttons can be implemented here
+    if (checkButtons()==upLeftButton)
+    {
+      
+    }
+  } else {
+    //time ran down
+    game_status=END;
+    if(hiding_players==0)
+    {
+      winner = SEEKER;
+    }
+    else
+    {
+      winner = HIDER;
+    }
+  }
 }
 
 void hider_eliminated(){

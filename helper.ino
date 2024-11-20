@@ -97,5 +97,17 @@ char* rcvData()
       return received;
     }
   }
-
+  //serial input
+  #ifdef BLE_DEBUG
+  if(SerialMonitorInterface.available())
+  {
+    delay(10);
+    while (SerialMonitorInterface.available()){
+        strcat(total_data,(char*) SerialMonitorInterface.readString().c_str());
+    }
+    return total_data;
+  }
+  #endif
 }
+
+

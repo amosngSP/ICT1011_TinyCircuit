@@ -1,7 +1,7 @@
 int secs = 70;
 void setup() {
   //Serial Monitor
-  #if BLE_DEBUG
+  #ifdef BLE_DEBUG
   SerialMonitorInterface.begin(9600);
   while (!SerialMonitorInterface); //This line will block until a serial monitor is opened with TinyScreen+!
   #endif

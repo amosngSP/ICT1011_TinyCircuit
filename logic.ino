@@ -49,8 +49,12 @@ void maingame(){
     //when the status is END
     game_end();
   }
-
+#ifdef BLE_DEBUG
+  if(ble_rx_buffer_len||SerialMonitorInterface.available()){
+#else
   if(ble_rx_buffer_len){
+#endif
+  
     //check if data is available
     JsonDocument doc;
     //testing
@@ -67,7 +71,7 @@ void maingame(){
       doc["error"] = "fail";
       PRINTF("Fail!\n");
       PRINTF(error.c_str());
-      PRINTF((char*)ble_rx_buffer);
+      PRINTF(json_data);
       ble_rx_buffer_len = 0;//clear after reading
       return;
     }

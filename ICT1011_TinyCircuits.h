@@ -9,6 +9,7 @@ enum status{
 enum playerType {
   HIDER,
   SEEKER,
+  ELIMINATED,
   NEITHER
 };
 
@@ -30,5 +31,6 @@ enum buttonPressed{
   UPRIGHT,
   DOWNRIGHT,
   UPLEFT,
-  DOWNLEFT
+  DOWNLEFT,
+  EMPTY
 };

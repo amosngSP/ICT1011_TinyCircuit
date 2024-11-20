@@ -1,0 +1,13 @@
+{"game_action":"start","hiding_time":30,"seeker_time":60,"hiding_players":5,"player_type":"hider"}
+
+{"game_action":"start","hiding_time":10,"seeker_time":10,"hiding_players":5,"player_type":"hider"}
+
+{"game_action":"start","hiding_time":30,"seeker_time":10,"hiding_players":5,"player_type":"hider"}
+
+{"game_action":"start","hiding_time":10,"seeker_time":30,"hiding_players":5,"player_type":"hider"}
+
+{"game_action":"caught"}
+
+{"game_action":"stop","winner":"hider"}
+
+{"game_action":"stop","winner":"seeker"}

@@ -3,8 +3,13 @@
 
 ## Libraries Required
 ArduinoJSON
+
 GraphicsBuffer
+
 RTCZero
+
 STBLE
+
 Time
+
 TinyScreen

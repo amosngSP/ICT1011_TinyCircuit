@@ -41,6 +41,8 @@ void displayText(char* text,int height)
   display.setCursor(48-(width/2),height);
   display.fontColor(white,black);
   display.print(text);
+  PRINTF(text);
+  PRINTF("\n");
 }
 //with colour
 void displayText(char* text,int height, int color)
@@ -49,6 +51,8 @@ void displayText(char* text,int height, int color)
   display.setCursor(48-(width/2),height);
   display.fontColor(color,black);
   display.print(text);
+  PRINTF(text);
+  PRINTF("\n");
 }
 void displayTextTopLeft(char* text,int height)
 {
@@ -86,8 +90,7 @@ char* rcvData()
       while (1)
       {
         //a delay to prevent this code running all the time
-        aci_loop();
-        delay(1000);
+        //delay(1000);
         
         if (ble_rx_buffer_len){
           received = (char*)ble_rx_buffer;

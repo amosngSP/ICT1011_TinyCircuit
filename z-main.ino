@@ -11,7 +11,7 @@ void setup() {
   displaySetup();
   RTCSetup();
   
-  delay(1000);
+  //delay(1000);
 }
 
 void loop() {
@@ -21,5 +21,5 @@ void loop() {
   maingame();
   // countdownTimer(secs);
   // secs--;
-   delay(500);
+   //delay(500);
 }

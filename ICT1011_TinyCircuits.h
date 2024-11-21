@@ -23,8 +23,7 @@ enum screenStatus{
   S_EMPTY,
   S_DISCONNECTED,
   S_CONNECTED,
-  S_PREGAME,
-  S_GAME,
+  S_CAUGHT
 };
 
 enum buttonPressed{

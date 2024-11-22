@@ -14,7 +14,7 @@
 //comment out if not using epoch time.
 //it will treat all times given as epoch time.
 #ifndef USE_EPOCH
-#define USE_EPOCH true
+//#define USE_EPOCH true
 #endif
 
 #ifdef BLE_DEBUG

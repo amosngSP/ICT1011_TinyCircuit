@@ -89,6 +89,7 @@ char* rcvData()
       //received start signal, begin while loop to keep receiving buffer.
       while (1)
       {
+        aci_loop();
         //a delay to prevent this code running all the time
         //delay(1000);
         
@@ -108,8 +109,9 @@ char* rcvData()
             PRINTF("\n");
             strcat(total_data,received);
           }
+          ble_rx_buffer_len = 0; //reset buffer
         }
-        ble_rx_buffer_len = 0; //reset buffer
+        
       }
     } else {
       return received;

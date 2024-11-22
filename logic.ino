@@ -111,11 +111,11 @@ void maingame() {
             //Assume time provided in duration
 
             //set default to 0 secs if not set
-            countdown_time = doc["countdown_time"] != NULL ? rtc.getEpoch() + doc["countdown_time"] : rtc.getEpoch() + 0;
+            countdown_time = doc["countdown_time"] != NULL ? rtc.getEpoch() + (int) doc["countdown_time"] : rtc.getEpoch() + 0;
             //set default to 120secs (2mins) if not set
-            hiding_time = doc["hiding_time"] != NULL ? countdown_time + doc["hiding_time"] : countdown_time + 120;
+            hiding_time = doc["hiding_time"] != NULL ? countdown_time + (int) doc["hiding_time"] : countdown_time + 120;
             //set default to 300secs (5mins) if not set
-            seeker_time = doc["seeker_time"] != NULL ? hiding_time + doc["seeker_time"] : hiding_time + 300;
+            seeker_time = doc["seeker_time"] != NULL ? hiding_time + (int) doc["seeker_time"] : hiding_time + 300;
             #endif
 
             //get the number of players. set to 0 if not set

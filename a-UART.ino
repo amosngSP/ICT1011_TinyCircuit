@@ -134,7 +134,9 @@ uint8_t Add_UART_Service(void)
   if (ret != BLE_STATUS_SUCCESS) goto fail;
 
   COPY_UART_TX_CHAR_UUID(uuid);
-  ret =  aci_gatt_add_char(UARTServHandle, UUID_TYPE_128, uuid, 20, CHAR_PROP_WRITE_WITHOUT_RESP, ATTR_PERMISSION_NONE, GATT_NOTIFY_ATTRIBUTE_WRITE,
+  //CHAR_PROP_WRITE_WITHOUT_RESP
+  //CHAR_PROP_WRITE
+  ret =  aci_gatt_add_char(UARTServHandle, UUID_TYPE_128, uuid, 20, CHAR_PROP_WRITE, ATTR_PERMISSION_NONE, GATT_NOTIFY_ATTRIBUTE_WRITE,
                            16, 1, &UARTTXCharHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;
 

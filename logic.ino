@@ -59,6 +59,11 @@ void maingame() {
       //when the status is END
       game_end();
     }
+
+            if (checkButtons() == downRightButton) {
+              game_status = END;
+        }
+
     #ifdef BLE_DEBUG
     if (ble_rx_buffer_len || SerialMonitorInterface.available()) {
       #else
@@ -71,7 +76,7 @@ void maingame() {
         //char* json_data = "{\"game_action\":\"start\",\"hiding_time\":10,\"seeker_time\":10,\"hiding_players\":5,\"player_type\":\"hider\"}";
 
         //actual data
-        char * json_data = rcvData();
+        char* json_data = rcvData();
         //SerialMonitorInterface.println(json_data);
         //deserialize the JSON document
         DeserializationError error = deserializeJson(doc, json_data);

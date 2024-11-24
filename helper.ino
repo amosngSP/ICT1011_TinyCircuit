@@ -101,6 +101,7 @@ char* rcvData()
             PRINTF("FULL DATA:");
             PRINTF(total_data);
             PRINTF("\n");
+            ble_rx_buffer_len = 0; //reset buffer
             return total_data;
           }
           else {

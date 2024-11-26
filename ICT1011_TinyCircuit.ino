@@ -8,13 +8,13 @@
 //Debug output adds extra flash and memory requirements!
 //comment out if not debugging
 #ifndef BLE_DEBUG
-#define BLE_DEBUG true
+//#define BLE_DEBUG true
 #endif
 
 //comment out if not using epoch time.
 //it will treat all times given as epoch time.
 #ifndef USE_EPOCH
-//#define USE_EPOCH true
+#define USE_EPOCH true
 #endif
 
 #ifdef BLE_DEBUG
